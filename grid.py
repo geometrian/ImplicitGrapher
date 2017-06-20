@@ -19,9 +19,6 @@ class Grid(object):
         self.root.subdiv_refine(max_level)
         self.root.calc()
 
-##        self.root.children[0b000].subdiv()
-##        self.root.children[0b000].children[0b111].subdiv()
-
         self.dl_pts_err=glGenLists(1); self.dl_pts_neg=glGenLists(1); self.dl_pts_zero=glGenLists(1); self.dl_pts_pos=glGenLists(1)
         glNewList(self.dl_pts_err, GL_COMPILE); glBegin(GL_POINTS); self.root.draw_points(0); glEnd(); glEndList()
         glNewList(self.dl_pts_neg, GL_COMPILE); glBegin(GL_POINTS); self.root.draw_points(1); glEnd(); glEndList()

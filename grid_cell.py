@@ -5,22 +5,6 @@ from helpers import *
 
 
 
-##neighbors_7 = []
-##for k in [0,1]:
-##    for j in [0,1]:
-##        for i in [0,1]:
-##            if i!=0 or j!=0 or k!=0:
-##                neighbors_7.append( (i,j,k) )
-##
-##neighbors_26 = []
-##for k in [-1,0,1]:
-##    for j in [-1,0,1]:
-##        for i in [-1,0,1]:
-##            if i!=0 or j!=0 or k!=0:
-##                neighbors_26.append( (i,j,k) )
-
-
-
 class Link(object):
     def __init__(self, lower,upper):
         self.lower = lower
@@ -184,8 +168,6 @@ class Cell(object):
                 else:                                 e001=self.neighbors[5]      .upper.err
             else:                                     e001=None
             for eiijjkk in [e100,e010,e001]:
-##            for ii,jj,kk in neighbors_7:
-##                eiijjkk = self.errs[k+kk][j+jj][i+ii]
                 if ((e000==None) != (eiijjkk==None)) or ((e000!=None) and (sgn(e000)!=sgn(eiijjkk))):
                     self.subdiv()
                     break
