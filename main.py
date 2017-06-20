@@ -43,7 +43,7 @@ pygame.display.init()
 pygame.font.init()
 
 icon = pygame.Surface((1,1)); icon.set_alpha(0); pygame.display.set_icon(icon)
-pygame.display.set_caption("[Program] - [Author] - [Version] - [Date]")
+pygame.display.set_caption("Implicit Grapher - Ian Mallett - 2017")
 if multisample:
     pygame.display.gl_set_attribute(GL_MULTISAMPLEBUFFERS,1)
     pygame.display.gl_set_attribute(GL_MULTISAMPLESAMPLES,multisample)
