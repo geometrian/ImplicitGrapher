@@ -1,18 +1,47 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
+
 import pygame
 from pygame.locals import *
+
+import runpy
 import sys, os, traceback
 if sys.platform in ["win32","win64"]: os.environ["SDL_VIDEO_CENTERED"]="1"
+try:
+    import ConfigParser as configparser
+except:
+    import configparser
 from math import *
+
 from grid import Grid
 from helpers import *
 import gl_shader
+
+
+
+config = configparser.RawConfigParser()
+config.read("settings.txt")
+
+screen_size = [
+    config.getint("graphics","width"),
+    config.getint("graphics","height")
+]
+multisample = config.getint("graphics","multisample")
+
+initial_subdiv = config.getint("function","initial-subdiv")
+max_subdiv = config.getint("function","max-subdiv")
+xbounds = [config.getfloat("function","xmin"),config.getfloat("function","xmax")]
+ybounds = [config.getfloat("function","ymin"),config.getfloat("function","ymax")]
+zbounds = [config.getfloat("function","zmin"),config.getfloat("function","zmax")]
+
+impl = runpy.run_path(config.get("function","impl-file"))
+err_func = impl[config.get("function","impl-fn")]
+
+
+
 pygame.display.init()
 pygame.font.init()
 
-screen_size = [1024,768]
-multisample = 16
 icon = pygame.Surface((1,1)); icon.set_alpha(0); pygame.display.set_icon(icon)
 pygame.display.set_caption("[Program] - [Author] - [Version] - [Date]")
 if multisample:
@@ -49,34 +78,13 @@ void main() {
     )
 ])
 
-
-def err_n(pos):
-    x,y,z=pos; M=1.0; a=x; Q=z; r=y
-    tmp = M*r - Q*Q
-    if tmp >= 0.0: return M*r*r*r - 6.0*M*M*r*r - 3.0*M*a*a*r + 9.0*M*Q*Q*r - 8.0*a*(tmp**(3.0/2.0)) + 4.0*Q*Q*(a*a-Q*Q)
-    else:          return None
-def err_p(pos):
-    x,y,z=pos; M=1.0; a=x; Q=z; r=y
-    tmp = M*r - Q*Q
-    if tmp >= 0.0: return M*r*r*r - 6.0*M*M*r*r - 3.0*M*a*a*r + 9.0*M*Q*Q*r + 8.0*a*(tmp**(3.0/2.0)) + 4.0*Q*Q*(a*a-Q*Q)
-    else:          return None
-
 print("Generating data . . .")
-if 0:
-    err_func=err_n; sc=[
-        1.0,
-        9.5,
-        1.5
-    ]
-else:
-    err_func=err_p; sc=[
-        2.0,
-        6.3,
-        1.2
-    ]
-res = 16
-grid = Grid( err_func, (0.0,0.0,0.0),(sc[0],sc[1],sc[2]) )
-points = grid.calc(5,7)
+grid = Grid(
+    err_func,
+    (           xbounds[0],           ybounds[0],           zbounds[0]),
+    (xbounds[1]-xbounds[0],ybounds[1]-ybounds[0],zbounds[1]-zbounds[0])
+)
+points = grid.calc(initial_subdiv,max_subdiv)
 
 
 
@@ -154,7 +162,7 @@ def draw():
 
     #Draw points and grid
     glPushMatrix()
-    glScalef( 1.0/sc[0], 1.0/sc[1], 1.0/sc[2] )
+    glScalef( 1.0/grid.root.eps[0], 1.0/grid.root.eps[1], 1.0/grid.root.eps[2] )
     
     glEnable(GL_PROGRAM_POINT_SIZE)
     gl_shader.Program.use(prog_pts)
