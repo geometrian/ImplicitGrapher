@@ -176,6 +176,7 @@ def draw():
     #Draw points and grid
     glPushMatrix()
     glScalef( 1.0/grid.root.eps[0], 1.0/grid.root.eps[1], 1.0/grid.root.eps[2] )
+    glTranslatef( *sc_vec(-1.0,grid.pos) )
     
     glEnable(GL_PROGRAM_POINT_SIZE)
     gl_shader.Program.use(prog_pts)
