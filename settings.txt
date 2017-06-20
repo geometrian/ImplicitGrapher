@@ -7,6 +7,20 @@ multisample = 16
 
 
 
+[appearance]
+
+color-pts-invalid = ( 1.0, 0.8, 0.0 )
+color-pts-below   = ( 1.0, 0.0, 0.0 )
+color-pts-solved  = ( 1.0, 0.0, 1.0 )
+color-pts-above   = ( 0.1, 0.7, 0.2 )
+
+size-pts-invalid = 4.0
+size-pts-below   = 5.0
+size-pts-solved  = 9.0
+size-pts-above   = 3.0
+
+
+
 [function]
 
 initial-subdiv = 4

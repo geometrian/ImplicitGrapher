@@ -4,6 +4,7 @@ from OpenGL.GLU import *
 import pygame
 from pygame.locals import *
 
+from ast import literal_eval
 import runpy
 import sys, os, traceback
 if sys.platform in ["win32","win64"]: os.environ["SDL_VIDEO_CENTERED"]="1"
@@ -27,6 +28,18 @@ screen_size = [
     config.getint("graphics","height")
 ]
 multisample = config.getint("graphics","multisample")
+
+def parse_color(s):
+    sr,sg,sb = literal_eval(s)
+    return (float(sr),float(sg),float(sb))
+color_pts_invalid = parse_color(config.get("appearance","color-pts-invalid"))
+color_pts_below   = parse_color(config.get("appearance","color-pts-below"  ))
+color_pts_solved  = parse_color(config.get("appearance","color-pts-solved" ))
+color_pts_above   = parse_color(config.get("appearance","color-pts-above"  ))
+size_pts_invalid = config.getfloat("appearance","size-pts-invalid")
+size_pts_below   = config.getfloat("appearance","size-pts-below"  )
+size_pts_solved  = config.getfloat("appearance","size-pts-solved" )
+size_pts_above   = config.getfloat("appearance","size-pts-above"  )
 
 initial_subdiv = config.getint("function","initial-subdiv")
 max_subdiv = config.getint("function","max-subdiv")
@@ -167,10 +180,10 @@ def draw():
     glEnable(GL_PROGRAM_POINT_SIZE)
     gl_shader.Program.use(prog_pts)
     if draw_extra_pts:
-        prog_pts.pass_float("size",3.0); prog_pts.pass_vec3("color",[1.0,1.0,0.0]); glCallList(grid.dl_pts_err) #invalid
-        prog_pts.pass_float("size",3.0); prog_pts.pass_vec3("color",[1.0,0.0,0.0]); glCallList(grid.dl_pts_neg) #negative err
-        prog_pts.pass_float("size",3.0); prog_pts.pass_vec3("color",[0.0,1.0,0.0]); glCallList(grid.dl_pts_pos) #positive err
-    prog_pts.pass_float("size",9.0); prog_pts.pass_vec3("color",[1.0,0.0,1.0]); glCallList(grid.dl_pts_zero) #solved 0 err
+        prog_pts.pass_float("size",size_pts_invalid); prog_pts.pass_vec3("color",color_pts_invalid); glCallList(grid.dl_pts_err) #invalid
+        prog_pts.pass_float("size",size_pts_below  ); prog_pts.pass_vec3("color",color_pts_below  ); glCallList(grid.dl_pts_neg) #negative err
+        prog_pts.pass_float("size",size_pts_above  ); prog_pts.pass_vec3("color",color_pts_above  ); glCallList(grid.dl_pts_pos) #positive err
+    prog_pts.pass_float("size",size_pts_solved); prog_pts.pass_vec3("color",color_pts_solved); glCallList(grid.dl_pts_zero) #solved 0 err
     gl_shader.Program.use(None)
     glDisable(GL_PROGRAM_POINT_SIZE)
 
