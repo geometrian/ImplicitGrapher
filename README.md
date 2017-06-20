@@ -24,6 +24,14 @@ Any surface you can describe this way can be rendered.  As a final example, cons
 
 ![Mandelbulb Example](screenshots/ex-mandelbulb.png "Mandelbulb Example")
 
+## Installing
+
+ImplicitGrapher requires Python, PyGame, and PyOpenGL:
+
+- Python (2 or 3, although 3 seems to work better): [python.org](https://www.python.org/downloads/)
+- PyGame (typically something like `pip install pygame`): [pygame.org](http://pygame.org/wiki/GettingStarted#Pygame%20Installation)
+- PyOpenGL (typically something like `pip install pyopengl`): [pyopengl.sourceforget.net](http://pyopengl.sourceforge.net/documentation/installation.html)
+
 ## Usage
 
 ImplicitGrapher is designed to be very easy to use.  Write a definition of your function in a Python file, and then point ImplicitGrapher to it in the "[settings.txt](settings.txt)" file, with the desired bounds.  Some examples are provided in "[examples/](examples/)".
