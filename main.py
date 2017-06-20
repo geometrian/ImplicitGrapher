@@ -75,42 +75,8 @@ else:
         1.2
     ]
 res = 16
-grid = Grid( err_func, (0.0,0.0,0.0),(sc[0],sc[1],sc[2]),(res,res,res), 0 )
-points = grid.calc( [2,2,2], 3 )
-
-
-
-print("Creating points . . .")
-dlpts = [glGenLists(1),glGenLists(1),glGenLists(1),glGenLists(1)]
-
-glNewList(dlpts[0],GL_COMPILE)
-glBegin(GL_POINTS); grid.draw_points_neg(); glEnd()
-glEndList()
-
-glNewList(dlpts[1],GL_COMPILE)
-glBegin(GL_POINTS); grid.draw_points_err(); glEnd()
-glEndList()
-
-glNewList(dlpts[2],GL_COMPILE)
-glBegin(GL_POINTS); grid.draw_points_zero(); glEnd()
-glEndList()
-
-glNewList(dlpts[3],GL_COMPILE)
-glBegin(GL_POINTS); grid.draw_points_pos(); glEnd()
-glEndList()
-
-
-
-print("Creating grids . . .")
-dlgrid = glGenLists(1)
-glNewList(dlgrid,GL_COMPILE)
-
-glLineWidth(0.1)
-glBegin(GL_LINES)
-grid.draw_lines()
-glEnd()
-
-glEndList()
+grid = Grid( err_func, (0.0,0.0,0.0),(sc[0],sc[1],sc[2]) )
+points = grid.calc(5,7)
 
 
 
@@ -168,8 +134,10 @@ def get_input():
         camera_rot[1] = clamp(camera_rot[1],-89.0,89.0)
     return True
 def draw():
+    #Clear
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT)
-    
+
+    #Setup projection and view
     glViewport(0,0,screen_size[0],screen_size[1])
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
@@ -184,20 +152,39 @@ def draw():
         0,1,0
     )
 
+    #Draw points and grid
     glPushMatrix()
     glScalef( 1.0/sc[0], 1.0/sc[1], 1.0/sc[2] )
+    
     glEnable(GL_PROGRAM_POINT_SIZE)
     gl_shader.Program.use(prog_pts)
     if draw_extra_pts:
-        prog_pts.pass_float("size",3.0); prog_pts.pass_vec3("color",[1.0,0.0,0.0]); glCallList(dlpts[0]) #negative err
-        prog_pts.pass_float("size",3.0); prog_pts.pass_vec3("color",[1.0,1.0,0.0]); glCallList(dlpts[1]) #invalid
-        prog_pts.pass_float("size",3.0); prog_pts.pass_vec3("color",[0.0,1.0,0.0]); glCallList(dlpts[3]) #positive err
-    prog_pts.pass_float("size",9.0); prog_pts.pass_vec3("color",[1.0,0.0,1.0]); glCallList(dlpts[2]) #solved 0 err
+        prog_pts.pass_float("size",3.0); prog_pts.pass_vec3("color",[1.0,1.0,0.0]); glCallList(grid.dl_pts_err) #invalid
+        prog_pts.pass_float("size",3.0); prog_pts.pass_vec3("color",[1.0,0.0,0.0]); glCallList(grid.dl_pts_neg) #negative err
+        prog_pts.pass_float("size",3.0); prog_pts.pass_vec3("color",[0.0,1.0,0.0]); glCallList(grid.dl_pts_pos) #positive err
+    prog_pts.pass_float("size",9.0); prog_pts.pass_vec3("color",[1.0,0.0,1.0]); glCallList(grid.dl_pts_zero) #solved 0 err
     gl_shader.Program.use(None)
     glDisable(GL_PROGRAM_POINT_SIZE)
-    if draw_grid: glCallList(dlgrid)
+
+    if draw_grid:
+        level = 0
+        colors = [
+            (1.0,0.5,0.0),
+            #(1.0,1.0,0.0),
+            (0.5,1.0,0.0),
+            #(0.0,1.0,0.5),
+            (0.0,1.0,1.0),
+            #(0.0,0.5,1.0)
+        ]
+        glLineWidth(0.1)
+        for dl in grid.dls_grids:
+            glColor3f(*colors[level%len(colors)])
+            glCallList(dl)
+            level += 1
+    
     glPopMatrix()
 
+    #Draw bounding box and axes
     glLineWidth(2.0)
     glColor3f(*[0.5]*3)
     glBegin(GL_LINES)
@@ -218,7 +205,8 @@ def draw():
     glEnd()
 
     glColor3f(1,1,1)
-    
+
+    #Flip
     pygame.display.flip()
 def main():
     global prog_pts
